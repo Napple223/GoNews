@@ -11,6 +11,7 @@ type Storage struct {
 	db *pgxpool.Pool
 }
 
+// Конструктор для БД
 func New(connstr string) (*Storage, error) {
 	db, err := pgxpool.New(context.Background(), connstr)
 	if err != nil {
@@ -24,6 +25,7 @@ func New(connstr string) (*Storage, error) {
 	return &p, nil
 }
 
+// Функция для получения n новостей.
 func (s *Storage) GetPosts(n int) ([]storage.Post, error) {
 	if n == 0 {
 		n = 10
@@ -65,6 +67,7 @@ func (s *Storage) GetPosts(n int) ([]storage.Post, error) {
 	return posts, rows.Err()
 }
 
+// Функция для добавления новостей в БД.
 func (s *Storage) AddPosts(p []storage.Post) error {
 	for _, post := range p {
 		_, err := s.db.Exec(context.Background(), `

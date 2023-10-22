@@ -12,7 +12,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	err := godotenv.Load("../../../config.env")
+	err := godotenv.Load("./config_testDB.env")
 	if err != nil {
 		t.Fatal("Файл конфигурации .env не найден")
 	}

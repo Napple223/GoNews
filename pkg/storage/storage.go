@@ -14,5 +14,5 @@ type Post struct {
 //Интерфейс - контракт для работы с БД
 type Interface interface {
 	GetPosts(int) ([]Post, error) //Вывод заданного количества постов из БД
-	AddPosts([]Post) error        //Добавление поста в БД
+	AddPosts([]Post) error        //Добавление постов в БД
 }
