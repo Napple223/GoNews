@@ -22,7 +22,7 @@ type API struct {
 // Регистрация API в маршрутизаторе запросов
 func (api *API) endpoints() {
 	api.router.Use(api.Middleware)
-	api.router.HandleFunc("/posts/{n}", api.postsHandler).Methods(http.MethodGet, http.MethodOptions)
+	api.router.HandleFunc("/news/{n}", api.postsHandler).Methods(http.MethodGet, http.MethodOptions)
 	api.router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./webapp"))))
 }
 
@@ -43,20 +43,12 @@ func (api *API) Router() *mux.Router {
 
 // Получение заданного количества новостей
 func (api *API) postsHandler(res http.ResponseWriter, req *http.Request) {
-	res.Header().Set("Content-Type", "application/json")
-	res.Header().Set("Access-Control-Allow-Origin", "*")
-	if req.Method == http.MethodOptions {
-		return
-	}
 	str := mux.Vars(req)["n"]
-	n, err := strconv.Atoi(str)
-	if err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
-		return
-	}
+	n, _ := strconv.Atoi(str)
 	posts, err := api.db.GetPosts(n)
 	if err != nil {
 		http.Error(res, err.Error(), errSIS)
+		return
 	}
 	json.NewEncoder(res).Encode(posts)
 }

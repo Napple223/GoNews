@@ -8,32 +8,48 @@ import (
 	"strings"
 	"time"
 
-	"github.com/microcosm-cc/bluemonday"
+	strip "github.com/grokify/html-strip-tags-go"
 )
 
 // Структура RSS потока
 type Stream struct {
 	XMLName xml.Name `xml:"rss"`
+	Text    string   `xml:",chardata"`
+	Version string   `xml:"version,attr"`
+	Dc      string   `xml:"dc,attr"`
 	Channel Channel  `xml:"channel"`
 }
 
 type Channel struct {
-	//Title       string `xml:"title"`
-	//Description string `xml:"description"`
-	//Link        string `xml:"link"`
+	Text           string `xml:",chardata"`
+	Title          string `xml:"title"`
+	Description    string `xml:"description"`
+	Language       string `xml:"language"`
+	ManagingEditor string `xml:"managingEditor"`
+	Generator      string `xml:"generator"`
+	Image          struct {
+		Text  string `xml:",chardata"`
+		Link  string `xml:"link"`
+		URL   string `xml:"url"`
+		Title string `xml:"title"`
+	} `xml:"image"`
+	Link  string `xml:"link"`
 	Items []Item `xml:"item"`
 }
 
 type Item struct {
-	Title   string `xml:"title"`
-	Link    string `xml:"link"`
-	Content string `xml:"description"`
-	PubTime string `xml:"pubData"`
+	Text     string   `xml:",chardata"`
+	Title    string   `xml:"title"`
+	Link     string   `xml:"link"`
+	Content  string   `xml:"description"`
+	PubTime  string   `xml:"pubDate"`
+	Guid     string   `xml:"guid"`
+	Creator  string   `xml:"creator"`
+	Category []string `xml:"category"`
 }
 
 // Считывает RSS поток и возвращает слайс раскодированных новостей
 func Parse(url string) ([]storage.Post, error) {
-	policy := bluemonday.UGCPolicy()
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -54,11 +70,11 @@ func Parse(url string) ([]storage.Post, error) {
 	for _, items := range s.Channel.Items {
 		var p storage.Post
 		p.Title = items.Title
-		p.Content = policy.Sanitize(items.Content)
+		p.Content = strip.StripTags(items.Content)
 		nTime := strings.ReplaceAll(items.PubTime, ",", "")
-		t, err := time.Parse("Sun 3 Feb 2013 22:22:0 +0300", nTime)
+		t, err := time.Parse("Mon 2 Jan 2006 15:04:05 -0700", nTime)
 		if err != nil {
-			t, err = time.Parse("Sun 3 Feb 2013 15:20:0 GMT", nTime)
+			t, err = time.Parse("Mon 2 Jan 2006 15:04:05 GMT", nTime)
 		}
 		if err == nil {
 			p.PubTime = t.Unix()

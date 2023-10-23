@@ -35,6 +35,7 @@ func TestParse(t *testing.T) {
 				t.Fatal("Данные не получены")
 			}
 			t.Logf("получено %d публикаций", len(stream))
+			t.Log(stream[0])
 		})
 	}
 }
