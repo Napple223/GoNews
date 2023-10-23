@@ -19,14 +19,11 @@ type config struct {
 	RequestPeriod int      `json:"request_period"`
 }
 
-func init() {
+func main() {
 	err := godotenv.Load("./config.env")
 	if err != nil {
 		log.Fatal("Файл конфигурации .env не найден.")
 	}
-}
-
-func main() {
 	connstr, ok := os.LookupEnv("POSTGRES_CONN_STR")
 	if !ok {
 		log.Fatal("Переменная окружения для подключения к БД не найдена.")
@@ -58,6 +55,12 @@ func main() {
 	go func() {
 		for err := range errCH {
 			log.Printf("Новая ошибка: %f", err)
+		}
+	}()
+	//горутина для записи новостей в БД
+	go func() {
+		for post := range postsCH {
+			_ = db.AddPosts(post)
 		}
 	}()
 
