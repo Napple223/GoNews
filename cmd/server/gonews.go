@@ -51,7 +51,7 @@ func main() {
 	for _, url := range cfg.URLS {
 		go parse(url, db, cfg.RequestPeriod, postsCH, errCH)
 	}
-	//горутина для записи ошибок
+	//горутина для вывода ошибок из канала
 	go func() {
 		for err := range errCH {
 			log.Printf("Новая ошибка: %f", err)
